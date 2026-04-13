@@ -1,0 +1,14 @@
+using Microsoft.EntityFrameworkCore;
+using LogMonitor.API.Models;
+
+namespace LogMonitor.API.Data;
+
+public class AppDbContext : DbContext
+{
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) {}
+    public DbSet<LogEntry> LogEntries => Set<LogEntry>();
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+    }
+}

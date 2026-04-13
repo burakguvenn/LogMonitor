@@ -1,0 +1,6 @@
+{
+  "dataworkspace.excludedProjects": [
+    "Enter/Enter.sqlproj",
+    "LogMonitor.API/Migrations/Enter/Enter.sqlproj"
+  ]
+}
