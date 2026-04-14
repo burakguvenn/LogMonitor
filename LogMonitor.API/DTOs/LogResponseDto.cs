@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 namespace LogMonitor.API.DTOs;
 
 public class LogResponseDto
@@ -7,4 +9,5 @@ public class LogResponseDto
     public string Level { get; set; } = null!; //enum'dan sayı değil string okur
     public DateTime CreatedAt { get; set;}
     public int UserId { get; set; }
+    public JsonDocument? Metadata { get; set; }
 }

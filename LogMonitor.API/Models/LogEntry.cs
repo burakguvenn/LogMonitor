@@ -10,4 +10,5 @@ public class LogEntry
     public DateTime CreatedAt { get; set; } // UTC, 
     public int UserId { get; set; } // FK
     public User User { get; set; } = null!;
+    public string? Metadata { get; set; }
 }

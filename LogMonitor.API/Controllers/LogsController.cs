@@ -2,6 +2,7 @@ using LogMonitor.API.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using LogMonitor.API.Models;
 using LogMonitor.API.DTOs;
+using System.Text.Json;
 
 namespace LogMonitor.API.Controllers;
 
@@ -22,12 +23,18 @@ public class LogsController : ControllerBase
     public async Task<IActionResult> Createlog([FromBody] CreateLogDto request)
     {
         var userId = (int)HttpContext.Items["UserId"]!;
+
+        string? metadataString = request.Metadata != null
+            ? JsonSerializer.Serialize(request.Metadata)
+            : null;
+
         var newLog = new LogEntry
         {
             Message = request.Message,
             Level = request.Level,
             UserId = userId,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+            Metadata = metadataString
         };
 
         var createdLog = await _repository.AddAsync(newLog);
@@ -38,7 +45,8 @@ public class LogsController : ControllerBase
             Message = createdLog.Message,
             Level = createdLog.Level.ToString(),
             CreatedAt = createdLog.CreatedAt,
-            UserId = createdLog.UserId
+            UserId = createdLog.UserId,
+            Metadata = createdLog.Metadata != null ? JsonDocument.Parse(createdLog.Metadata) : null
         };
 
         return CreatedAtAction(nameof(GetByLogId), new {id = responseDto.Id}, responseDto);
@@ -59,7 +67,8 @@ public class LogsController : ControllerBase
             Message = log.Message,
             Level = log.Level.ToString(),
             CreatedAt = log.CreatedAt,
-            UserId = log.UserId
+            UserId = log.UserId,
+            Metadata = log.Metadata != null ? JsonDocument.Parse(log.Metadata) : null
         };
 
         return Ok(responseDto);
@@ -80,8 +89,8 @@ public class LogsController : ControllerBase
           Message = log.Message,
           Level = log.Level.ToString(),
           CreatedAt = log.CreatedAt,
-          UserId = log.UserId
-
+          UserId = log.UserId,
+          Metadata = log.Metadata != null ? JsonDocument.Parse(log.Metadata) : null
         });
 
         var response = new
@@ -90,7 +99,7 @@ public class LogsController : ControllerBase
             Pagination = new
             {
                 TotalCount = totalCount,
-                PageSize = request.PageSize,
+                //PageSize = request.PageSize,
                 CurrentPage = request.PageNumber,
                 TotalPages = totalPages,
                 HasNextPage = request.PageNumber < totalPages,

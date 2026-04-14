@@ -1,6 +1,5 @@
 using LogMonitor.API.DTOs;
 using LogMonitor.API.Models;
-using System.Collections.Generic;
 namespace LogMonitor.API.Repositories;
 
 public interface ILogRepository

@@ -6,19 +6,9 @@ namespace LogMonitor.API.DTOs;
 public class GetLogsRequestDto
 {
     public int PageNumber { get; set; } = 1;
-
-    private int _pageSize = 50;
-
-    public int PageSize
-    {
-        get => _pageSize;
-        set => _pageSize = (value > 100) ? 100 : value;
-    }
-
+    public int PageSize { get; } = 30;
     public AppLogLevel? Level { get; set; }
-
     public DateTime? StartDate { get; set;}
-
     [JsonIgnore]
     public int UserId { get; set; }
 }
