@@ -2,7 +2,6 @@ using LogMonitor.API.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using LogMonitor.API.Models;
 using LogMonitor.API.DTOs;
-using LogMonitor.API.Models.Enums;
 
 namespace LogMonitor.API.Controllers;
 
@@ -22,40 +21,72 @@ public class LogsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Createlog([FromBody] CreateLogDto request)
     {
+        var userId = (int)HttpContext.Items["UserId"]!;
         var newLog = new LogEntry
         {
             Message = request.Message,
             Level = request.Level,
-            Source = request.Source,
+            UserId = userId,
             CreatedAt = DateTime.UtcNow
         };
 
         var createdLog = await _repository.AddAsync(newLog);
 
-        return CreatedAtAction(nameof(GetByLogId), new {id = createdLog.Id}, createdLog);
+        var responseDto = new LogResponseDto
+        {
+            Id = createdLog.Id,
+            Message = createdLog.Message,
+            Level = createdLog.Level.ToString(),
+            CreatedAt = createdLog.CreatedAt,
+            UserId = createdLog.UserId
+        };
+
+        return CreatedAtAction(nameof(GetByLogId), new {id = responseDto.Id}, responseDto);
 
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetByLogId(long id)
     {
-        var log = await _repository.GetByIdAsync(id);
+        var currentUserId = (int)HttpContext.Items["UserId"]!;
+        var log = await _repository.GetByIdAsync(id, currentUserId);
 
         if (log == null) { return NotFound();}
 
-        return Ok(log);
+        var responseDto = new LogResponseDto
+        {
+            Id = log.Id,
+            Message = log.Message,
+            Level = log.Level.ToString(),
+            CreatedAt = log.CreatedAt,
+            UserId = log.UserId
+        };
+
+        return Ok(responseDto);
     }
 
     [HttpGet]
     public async Task<IActionResult> GetLogs([FromQuery] GetLogsRequestDto request)
     {
+        var userId = (int)HttpContext.Items["UserId"]!;
+        request.UserId = userId;
         var (logs, totalCount) = await _repository.GetLogsAsync(request);
 
         var totalPages = (int)Math.Ceiling(totalCount / (double)request.PageSize);
 
+        var dtoList = logs.Select(log => new LogResponseDto
+        {
+          Id = log.Id,
+          Message = log.Message,
+          Level = log.Level.ToString(),
+          CreatedAt = log.CreatedAt,
+          UserId = log.UserId
+
+        });
+
         var response = new
         {
-            Data = logs,
+            Data = dtoList,
             Pagination = new
             {
                 TotalCount = totalCount,

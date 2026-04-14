@@ -4,7 +4,7 @@ public enum AppLogLevel : byte
 {
     // 1xx : Informational
     Debug = 1,
-
+    
     // 2xx : Success / Standard Operations
     Info = 2, 
 

@@ -20,16 +20,18 @@ public class SqlLogRepository : ILogRepository
         return log;
     }
 
-    public async Task<LogEntry?> GetByIdAsync(long id)
+    public async Task<LogEntry?> GetByIdAsync(long id, int currentUserId)
     {
         return await _context.LogEntries
                 .AsNoTracking()
-                .FirstOrDefaultAsync(log => log.Id == id);
+                .FirstOrDefaultAsync(log => log.Id == id && log.UserId == currentUserId);
     }
 
     public async Task<(IEnumerable<LogEntry> Logs, int TotalCount)> GetLogsAsync(GetLogsRequestDto request)
     {
         var query = _context.LogEntries.AsNoTracking().AsQueryable();
+
+        query = query.Where(log => log.UserId == request.UserId); // sadece bu kullanıcıya ait log'ları alır. Diğerleri bu sorguda gözükmez.
 
         if (request.Level.HasValue)
         {
