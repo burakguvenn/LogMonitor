@@ -4,4 +4,5 @@ Step 2 : dotnet restore
 
 Step 3 : cd LogMonitor.API
 dotnet ef database update
+
 Step 4 : dotnet run
