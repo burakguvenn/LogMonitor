@@ -1,6 +1,6 @@
 namespace LogMonitor.API.Models.Enums;
 
-public enum AppLogLevel : byte
+public enum AppLogLevel
 {
     // 1xx : Informational
     Debug = 1,

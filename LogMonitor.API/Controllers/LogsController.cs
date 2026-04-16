@@ -33,7 +33,6 @@ public class LogsController : ControllerBase
             Message = request.Message,
             Level = request.Level,
             UserId = userId,
-            CreatedAt = DateTime.UtcNow,
             Metadata = metadataString
         };
 
