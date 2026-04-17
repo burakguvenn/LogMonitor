@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 using LogMonitor.API.Models;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

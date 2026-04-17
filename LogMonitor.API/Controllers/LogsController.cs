@@ -1,8 +1,7 @@
 using LogMonitor.API.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using LogMonitor.API.Models;
 using LogMonitor.API.DTOs;
-using System.Text.Json;
+using LogMonitor.API.Extensions;
 
 namespace LogMonitor.API.Controllers;
 
@@ -24,29 +23,11 @@ public class LogsController : ControllerBase
     {
         var userId = (int)HttpContext.Items["UserId"]!;
 
-        string? metadataString = request.Metadata != null
-            ? JsonSerializer.Serialize(request.Metadata)
-            : null;
-
-        var newLog = new LogEntry
-        {
-            Message = request.Message,
-            Level = request.Level,
-            UserId = userId,
-            Metadata = metadataString
-        };
+        var newLog = request.ToEntity(userId);
 
         var createdLog = await _repository.AddAsync(newLog);
 
-        var responseDto = new LogResponseDto
-        {
-            Id = createdLog.Id,
-            Message = createdLog.Message,
-            Level = createdLog.Level.ToString(),
-            CreatedAt = createdLog.CreatedAt,
-            UserId = createdLog.UserId,
-            Metadata = createdLog.Metadata != null ? JsonDocument.Parse(createdLog.Metadata) : null
-        };
+        var responseDto = createdLog.ToResponseDto();
 
         return CreatedAtAction(nameof(GetByLogId), new {id = responseDto.Id}, responseDto);
 
@@ -56,19 +37,12 @@ public class LogsController : ControllerBase
     public async Task<IActionResult> GetByLogId(long id)
     {
         var currentUserId = (int)HttpContext.Items["UserId"]!;
+
         var log = await _repository.GetByIdAsync(id, currentUserId);
 
         if (log == null) { return NotFound();}
 
-        var responseDto = new LogResponseDto
-        {
-            Id = log.Id,
-            Message = log.Message,
-            Level = log.Level.ToString(),
-            CreatedAt = log.CreatedAt,
-            UserId = log.UserId,
-            Metadata = log.Metadata != null ? JsonDocument.Parse(log.Metadata) : null
-        };
+        var responseDto = log.ToResponseDto();
 
         return Ok(responseDto);
     }
@@ -77,34 +51,14 @@ public class LogsController : ControllerBase
     public async Task<IActionResult> GetLogs([FromQuery] GetLogsRequestDto request)
     {
         var userId = (int)HttpContext.Items["UserId"]!;
+
         request.UserId = userId;
+
         var (logs, totalCount) = await _repository.GetLogsAsync(request);
 
-        var totalPages = (int)Math.Ceiling(totalCount / (double)request.PageSize);
+        var dtoList = logs.Select(log => log.ToResponseDto());
 
-        var dtoList = logs.Select(log => new LogResponseDto
-        {
-          Id = log.Id,
-          Message = log.Message,
-          Level = log.Level.ToString(),
-          CreatedAt = log.CreatedAt,
-          UserId = log.UserId,
-          Metadata = log.Metadata != null ? JsonDocument.Parse(log.Metadata) : null
-        });
-
-        var response = new
-        {
-            Data = dtoList,
-            Pagination = new
-            {
-                TotalCount = totalCount,
-                //PageSize = request.PageSize,
-                CurrentPage = request.PageNumber,
-                TotalPages = totalPages,
-                HasNextPage = request.PageNumber < totalPages,
-                HasPreviousPage = request.PageNumber > 1
-            }
-        };
+        var response = dtoList.ToPagedResponse(totalCount, request.PageNumber, request.PageSize);
 
         return Ok(response);
     }
