@@ -1,7 +1,9 @@
 using System.Text.Json.Serialization;
-using LogMonitor.API.Data;
+using LogMonitor.DataAccess.Concrete.Repositories;
+using LogMonitor.DataAccess.Concrete.Context;
+
 using LogMonitor.API.Middlewares;
-using LogMonitor.API.Repositories;
+using LogMonitor.DataAccess.Abstract;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);

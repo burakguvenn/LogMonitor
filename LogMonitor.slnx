@@ -1,3 +1,6 @@
 <Solution>
   <Project Path="LogMonitor.API/LogMonitor.API.csproj" />
+  <Project Path="LogMonitor.Business/LogMonitor.Business.csproj" />
+  <Project Path="LogMonitor.DataAccess/LogMonitor.DataAccess.csproj" />
+  <Project Path="LogMonitor.Entities/LogMonitor.Entities.csproj" />
 </Solution>

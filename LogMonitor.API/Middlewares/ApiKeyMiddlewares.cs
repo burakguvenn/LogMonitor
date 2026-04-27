@@ -1,4 +1,4 @@
-using LogMonitor.API.Data;
+using LogMonitor.DataAccess.Concrete.Context;
 using Microsoft.EntityFrameworkCore;
 
 namespace LogMonitor.API.Middlewares;

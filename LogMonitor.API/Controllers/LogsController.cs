@@ -1,7 +1,7 @@
-using LogMonitor.API.Repositories;
+using LogMonitor.DataAccess.Abstract;
 using Microsoft.AspNetCore.Mvc;
-using LogMonitor.API.DTOs;
-using LogMonitor.API.Extensions;
+using LogMonitor.Business.DTOs;
+using LogMonitor.Business.Extensions;
 
 namespace LogMonitor.API.Controllers;
 
@@ -54,7 +54,13 @@ public class LogsController : ControllerBase
 
         request.UserId = userId;
 
-        var (logs, totalCount) = await _repository.GetLogsAsync(request);
+        var (logs, totalCount) = await _repository.GetLogsAsync(
+            request.UserId, 
+            request.Level, 
+            request.StartDate, 
+            request.PageNumber, 
+            request.PageSize
+        );
 
         var dtoList = logs.Select(log => log.ToResponseDto());
 
